@@ -1,31 +1,24 @@
 package org.Main;
 
-import Model.SearchInput;
-import QueueRepresentation.ConsumerForQueue;
-import QueueRepresentation.ProducerForQueue;
+import Model.SearchResult;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 
 public class Main {
 
-    public static void main(String[] args) {
-        SearchInput searchInput = new SearchInput("platform", "/home/abhitejk_500313/Desktop/ImportantFolders/ImportantFiles");
+
+    public static void main(String[] args) throws InterruptedException {
+        ThreadHandler threadHandler = new ThreadHandler();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the number of threads you want to consume: ");
         int noOfThreads = scanner.nextInt();
-        BlockingQueue<File> queue = new ArrayBlockingQueue<>(10);
-        ProducerForQueue producerForQueue = new ProducerForQueue(queue, searchInput);
-        ConsumerForQueue consumerForQueue = new ConsumerForQueue(queue, searchInput);
-        Thread thread1 = new Thread(producerForQueue);
-        thread1.start();
-        Thread[] consumerThreads = new Thread[noOfThreads];
-        for (int threadIndex = 0; threadIndex < noOfThreads; threadIndex++) {
-            consumerThreads[threadIndex] = new Thread(consumerForQueue);
-            consumerThreads[threadIndex].start();
-        }
+        SearchResult searchResult=new SearchResult();
+        searchResult=ThreadHandler.mainMethodForTesting(noOfThreads);
+        System.out.println(searchResult);
+
     }
+
 }
