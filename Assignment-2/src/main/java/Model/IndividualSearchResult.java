@@ -70,17 +70,6 @@ public class IndividualSearchResult implements Comparable<IndividualSearchResult
             return Integer.compare(this.lineNumber, o.lineNumber);
         }
         return Integer.compare(this.index, o.index);
-//        int fileNameComparator=this.fileName.compareTo(o.fileName);
-//        if(fileNameComparator!=0) {
-//            return fileNameComparator;
-//        }else {
-//            int lineNumberComparator=Integer.compare(this.lineNumber,o.lineNumber);
-//            if(lineNumberComparator!=0){
-//                return lineNumberComparator;
-//            }else{
-//                return Integer.compare(this.index,o.index);
-//            }
-//        }
     }
 }
 

@@ -2,78 +2,62 @@ package QueueRepresentation;
 
 import Model.SearchInput;
 import Model.SearchResult;
-import Service.WordFinderImplementation;
-import org.Main.ThreadHandler;
+import Service.WordFinderUtil;
+import org.Main.MultiThreadWordSearch;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class ConsumerForQueue implements Runnable {
     private BlockingQueue<File> queueOfFilePaths;
-    private WordFinderImplementation wordFinderImplementation = new WordFinderImplementation();
+    private WordFinderUtil wordFinderUtil = new WordFinderUtil();
     private SearchInput searchInput;
     private SearchResult searchResult;
-    List<SearchResult> listOfSearchResult=new ArrayList<>();
     private boolean consumerFlag;
+
+    private Logger logger = LogManager.getLogger(ConsumerForQueue.class);
 
     public ConsumerForQueue(BlockingQueue<File> queueOfFilePaths, SearchInput searchInput) {
         this.queueOfFilePaths = queueOfFilePaths;
         this.searchInput = searchInput;
     }
 
-    public ConsumerForQueue() {
-
-    }
-
     public ConsumerForQueue(boolean consumerFlag) {
         this.consumerFlag = consumerFlag;
     }
 
-    public void consume(){
-        int size = queueOfFilePaths.size();
-        while (!consumerFlag && size != 0) {
-            for (int index = 0; index < size; index++) {
-                searchInput.setWordName(searchInput.getWordName());
-                try {
-                    searchInput.setFilePath(queueOfFilePaths.take().toString());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                searchResult = wordFinderImplementation.searchWord(searchInput);
-                listOfSearchResult.add(searchResult);
+    public void consume() {
+        while (queueOfFilePaths.size() != 0) {
+//        for(int i=0;i<size;i++) {
+            try {
+                searchInput.setFilePath(queueOfFilePaths.take().toString());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            synchronized (this){
-//                System.out.println("List--->>>> "+listOfSearchResult);
-
-//                System.out.println(searchResult);
-            }
+            searchResult = wordFinderUtil.searchWord(searchInput);
+//        }
         }
     }
 
 
     @Override
     public void run() {
-//        int size = queueOfFilePaths.size();
-//        while (!consumerFlag && size != 0) {
-//            for (int index = 0; index < size; index++) {
-//                searchInput.setWordName(searchInput.getWordName());
-//                try {
-//                    searchInput.setFilePath(queueOfFilePaths.take().toString());
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                searchResult = wordFinderImplementation.searchWord(searchInput);
-//            }
-//            synchronized (this) {
-//                System.out.println(searchResult);
-//            }
-//        }
+        logger.info("Consumer Thread -> " + Thread.currentThread().getName() + " started");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         consume();
+        logger.info("Consumer Thread -> " + Thread.currentThread().getName() + " ended");
     }
 
-    public List<SearchResult> getListOfSearchResult() {
-        return this.listOfSearchResult;
+    public SearchResult getSearchResult() {
+        return searchResult;
     }
 }

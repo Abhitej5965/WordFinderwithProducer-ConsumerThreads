@@ -6,6 +6,7 @@ public class SearchResult {
     private int totalFiles;
     private List<IndividualSearchResult> individualSearchResults;
 
+
     public SearchResult() {
     }
 

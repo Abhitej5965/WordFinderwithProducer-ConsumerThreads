@@ -1,24 +1,23 @@
 package QueueRepresentation;
 
 import Model.SearchInput;
-import Model.SearchResult;
-import Service.WordFinderImplementation;
+import Service.WordFinderUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
 
 public class ProducerForQueue implements Runnable {
 
 
     private BlockingQueue<File> queueOfFilePaths;
-    private int capacityOfQueue;
 
-    private WordFinderImplementation wordFinderImplementation = new WordFinderImplementation();
+    private WordFinderUtil wordFinderUtil = new WordFinderUtil();
     private SearchInput searchInput;
-    private SearchResult searchResult;
-    private File[] files;
-    Thread t1 = new Thread(new ConsumerForQueue());
+    private File file;
+
+    private Logger logger= LogManager.getLogger(ProducerForQueue.class);
     private boolean producerFlag;
 
     public ProducerForQueue(BlockingQueue<File> queueOfFilePaths, SearchInput searchInput) {
@@ -29,79 +28,29 @@ public class ProducerForQueue implements Runnable {
 
     ConsumerForQueue consumerForQueue = new ConsumerForQueue(producerFlag);
 
+
     @Override
-//    public void run() {
-//        files = wordFinderImplementation.takingFilesOneByOne(searchInput.getFilePath());
-//        capacityOfQueue = files.length;
-//        for (File individualFiles : files) {
-//            if (individualFiles.isFile()) {
-//                producerFlag = false;
-//                try {
-//                    queueOfFilePaths.put(individualFiles);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            } else if (individualFiles.isDirectory()) {
-//                requiredMethod(individualFiles);
-//            }
-//        }
-//        producerFlag = true;
-//}
-//    public void run() {
-//        files = wordFinderImplementation.takingFilesOneByOne(searchInput.getFilePath());
-//        capacityOfQueue = files.length;
-//        Stack<File> stack = new Stack<>();
-//        for (File individualFiles : files) {
-//            stack.push(individualFiles);
-//        }
-//
-//        while (!stack.isEmpty()) {
-//            File individualFiles = stack.pop();
-//            if (individualFiles.isFile()) {
-//                producerFlag = false;
-//                try {
-//                    queueOfFilePaths.put(individualFiles);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            } else if (individualFiles.isDirectory()) {
-//                File[] subFiles = individualFiles.listFiles();
-//                for (File subFile : subFiles) {
-//                    stack.push(subFile);
-//                }
-//            }
-//        }
-//        producerFlag = true;
-//    }
     public void run() {
-        files = wordFinderImplementation.takingFilesOneByOne(searchInput.getFilePath());
-        capacityOfQueue = files.length;
-        for (File individualFiles : files) {
-            if (individualFiles.isFile()) {
-                producerFlag = false;
-                try {
-                    queueOfFilePaths.put(individualFiles);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            } else if (individualFiles.isDirectory()) {
-                processDirectory(individualFiles);
-            }
-        }
+        logger.info("Producer Thread started");
+        file = new File(searchInput.getFilePath());
+        logger.info("Producer Thread started pushing files into queue");
+        produce(file);
+        logger.info("Producer Thread stopped pushing files into queue, as all the files are pushed into queue");
         producerFlag = true;
+        logger.info("Producer Thread ended");
     }
 
-    private void processDirectory(File directory) {
-        File[] subFiles = wordFinderImplementation.takingFilesOneByOne(directory.getPath());
-        for (File subFile : subFiles) {
-            if (subFile.isFile()) {
-                try {
-                    queueOfFilePaths.put(subFile);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            } else if (subFile.isDirectory()) {
-                processDirectory(subFile);
+    public void produce(File requiredFile) {
+        if (requiredFile.isFile()) {
+            producerFlag = false;
+            try {
+                queueOfFilePaths.put(requiredFile);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (requiredFile.isDirectory()) {
+            for (File subfile : requiredFile.listFiles()) {
+                produce(subfile);
             }
         }
     }
