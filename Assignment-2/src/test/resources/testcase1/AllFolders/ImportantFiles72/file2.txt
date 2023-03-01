@@ -1,0 +1,1 @@
+WaveMaker is a leading Java low-code platform that helps professionals rapidly build modern, scalable, and secure software products and applications. Founded by a team of Java middleware technology experts, WaveMaker’s mission is to equip coders with a flexible low-code platform that can offer abstraction and augment the efforts of core software development teams.
