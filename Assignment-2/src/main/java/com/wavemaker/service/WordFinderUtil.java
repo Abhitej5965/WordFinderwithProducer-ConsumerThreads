@@ -22,13 +22,11 @@ public class WordFinderUtil {
     private int wordFoundInFiles = 0;
     private List<IndividualSearchResult> listOfIndividualSearchResults = Collections.synchronizedList(new ArrayList<>());
     private IndividualSearchResult individualSearchResult = null;
-    private int flag = 0;
 
     public SearchResult searchWord(SearchInput searchInput, int lengthOfFilePath) {
         SearchResult searchResult = new SearchResult();
         String word = searchInput.getSearchKey();
         File individualFile = new File(searchInput.getFilePath());
-        boolean flag1 = false;
         try {
             if (individualFile.isFile()) {
                 int flag = 0;
@@ -48,7 +46,6 @@ public class WordFinderUtil {
                         }
                         if (j == wordLength) {
                             flag++;
-                            flag1 = true;
                             String filePath = individualFile.getPath();
                             String actualPath = filePath.substring(lengthOfFilePath, filePath.length());
                             individualSearchResult = new IndividualSearchResult(actualPath, lineNumber, i, Thread.currentThread().getName());
